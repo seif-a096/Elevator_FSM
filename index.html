@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elevator FSM Diagram</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 1400px;
+        width: 100%;
+      }
+
+      h1 {
+        color: #2d3748;
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 2em;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #718096;
+        margin-bottom: 30px;
+        font-size: 0.95em;
+        line-height: 1.6;
+      }
+
+      .diagram-wrapper {
+        background: #f7fafc;
+        border-radius: 12px;
+        padding: 40px;
+        overflow-x: auto;
+      }
+
+      svg {
+        display: block;
+        margin: 0 auto;
+      }
+
+      .state {
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .state:hover circle {
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+      }
+
+      .state:hover text {
+        font-weight: 600;
+      }
+
+      .state circle {
+        transition: all 0.3s ease;
+      }
+
+      .transition {
+        transition: all 0.3s ease;
+      }
+
+      .transition:hover path {
+        stroke-width: 2.5;
+      }
+
+      .transition:hover text {
+        font-weight: 600;
+        font-size: 13px;
+      }
+
+      .legend {
+        margin-top: 30px;
+        padding: 20px;
+        background: #edf2f7;
+        border-radius: 10px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .legend-color {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 3px solid #2d3748;
+      }
+
+      .legend-text {
+        color: #2d3748;
+        font-size: 0.9em;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 1.5em;
+        }
+
+        .diagram-wrapper {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🏢 Elevator FSM Diagram (Moore Machine)</h1>
+      <div class="subtitle">
+        This diagram visualizes the four states and synchronous transition
+        conditions based on your <code>elevator_ctrl.vhd</code> code.<br />
+        All synchronous transitions only occur when
+        <code>one_sec_enable = '1'</code>.
+      </div>
+
+      <div class="diagram-wrapper">
+        <svg width="1200" height="800" viewBox="0 0 1200 800">
+          <!-- Define arrow markers -->
+          <defs>
+            <marker
+              id="arrowhead"
+              markerWidth="10"
+              markerHeight="10"
+              refX="9"
+              refY="3"
+              orient="auto"
+            >
+              <polygon points="0 0, 10 3, 0 6" fill="#2d3748" />
+            </marker>
+            <marker
+              id="arrowhead-red"
+              markerWidth="10"
+              markerHeight="10"
+              refX="9"
+              refY="3"
+              orient="auto"
+            >
+              <polygon points="0 0, 10 3, 0 6" fill="#e53e3e" />
+            </marker>
+          </defs>
+
+          <!-- RESET arrow -->
+          <g class="transition">
+            <path
+              d="M 250 120 L 510 220"
+              stroke="#e53e3e"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead-red)"
+            />
+            <text
+              x="340"
+              y="160"
+              fill="#e53e3e"
+              font-size="14"
+              font-weight="600"
+            >
+              RESET
+            </text>
+          </g>
+
+          <!-- IDLE State (top center) -->
+          <g class="state">
+            <circle
+              cx="600"
+              cy="250"
+              r="80"
+              fill="#60a5fa"
+              stroke="#2563eb"
+              stroke-width="3"
+            />
+            <text
+              x="600"
+              y="240"
+              text-anchor="middle"
+              font-size="20"
+              font-weight="bold"
+              fill="white"
+            >
+              IDLE
+            </text>
+            <text
+              x="600"
+              y="260"
+              text-anchor="middle"
+              font-size="12"
+              fill="#dbeafe"
+            >
+              moving='0'
+            </text>
+            <text
+              x="600"
+              y="275"
+              text-anchor="middle"
+              font-size="12"
+              fill="#dbeafe"
+            >
+              door_open='0'
+            </text>
+
+            <!-- Self loop -->
+            <path
+              d="M 660 210 Q 710 180 680 240"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="700" y="200" font-size="11" fill="#2d3748">!any_req</text>
+          </g>
+
+          <!-- MOVING_UP State (left) -->
+          <g class="state">
+            <circle
+              cx="250"
+              cy="450"
+              r="80"
+              fill="#34d399"
+              stroke="#059669"
+              stroke-width="3"
+            />
+            <text
+              x="250"
+              y="440"
+              text-anchor="middle"
+              font-size="18"
+              font-weight="bold"
+              fill="white"
+            >
+              MOVING_UP
+            </text>
+            <text
+              x="250"
+              y="460"
+              text-anchor="middle"
+              font-size="12"
+              fill="#d1fae5"
+            >
+              moving='1'
+            </text>
+            <text
+              x="250"
+              y="475"
+              text-anchor="middle"
+              font-size="12"
+              fill="#d1fae5"
+            >
+              door_open='0'
+            </text>
+
+            <!-- Self loop -->
+            <path
+              d="M 180 410 Q 130 400 170 450"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="110" y="420" font-size="10" fill="#2d3748">
+              !timer_done OR
+            </text>
+            <text x="110" y="433" font-size="10" fill="#2d3748">
+              !at_target_or_req(up)
+            </text>
+          </g>
+
+          <!-- MOVING_DOWN State (right) -->
+          <g class="state">
+            <circle
+              cx="950"
+              cy="450"
+              r="80"
+              fill="#f59e0b"
+              stroke="#d97706"
+              stroke-width="3"
+            />
+            <text
+              x="950"
+              y="435"
+              text-anchor="middle"
+              font-size="17"
+              font-weight="bold"
+              fill="white"
+            >
+              MOVING_DOWN
+            </text>
+            <text
+              x="950"
+              y="455"
+              text-anchor="middle"
+              font-size="12"
+              fill="#fef3c7"
+            >
+              moving='1'
+            </text>
+            <text
+              x="950"
+              y="470"
+              text-anchor="middle"
+              font-size="12"
+              fill="#fef3c7"
+            >
+              door_open='0'
+            </text>
+
+            <!-- Self loop -->
+            <path
+              d="M 1020 410 Q 1070 400 1030 450"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="1040" y="420" font-size="10" fill="#2d3748">
+              !timer_done OR
+            </text>
+            <text x="1040" y="433" font-size="10" fill="#2d3748">
+              !at_target_or_req(dn)
+            </text>
+          </g>
+
+          <!-- OPEN_DOOR State (bottom center) -->
+          <g class="state">
+            <circle
+              cx="600"
+              cy="650"
+              r="80"
+              fill="#ec4899"
+              stroke="#be185d"
+              stroke-width="3"
+            />
+            <text
+              x="600"
+              y="640"
+              text-anchor="middle"
+              font-size="18"
+              font-weight="bold"
+              fill="white"
+            >
+              OPEN_DOOR
+            </text>
+            <text
+              x="600"
+              y="660"
+              text-anchor="middle"
+              font-size="12"
+              fill="#fce7f3"
+            >
+              moving='0'
+            </text>
+            <text
+              x="600"
+              y="675"
+              text-anchor="middle"
+              font-size="12"
+              fill="#fce7f3"
+            >
+              door_open='1'
+            </text>
+
+            <!-- Self loop -->
+            <path
+              d="M 600 730 Q 550 760 540 680"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="500" y="750" font-size="11" fill="#2d3748">
+              !timer_done
+            </text>
+          </g>
+
+          <!-- Transitions -->
+
+          <!-- IDLE to MOVING_UP -->
+          <g class="transition">
+            <path
+              d="M 530 310 L 310 430"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="380" y="355" font-size="11" fill="#2d3748">
+              !req_at_curr & any_req
+            </text>
+            <text x="380" y="370" font-size="11" fill="#2d3748">
+              & req_above
+            </text>
+          </g>
+
+          <!-- IDLE to MOVING_DOWN -->
+          <g class="transition">
+            <path
+              d="M 670 310 L 890 430"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="750" y="355" font-size="11" fill="#2d3748">
+              !req_at_curr & any_req
+            </text>
+            <text x="750" y="370" font-size="11" fill="#2d3748">
+              & req_below
+            </text>
+          </g>
+
+          <!-- IDLE to OPEN_DOOR -->
+          <g class="transition">
+            <path
+              d="M 620 330 L 620 570"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="630" y="435" font-size="11" fill="#2d3748">
+              timer_done &
+            </text>
+            <text x="630" y="450" font-size="11" fill="#2d3748">
+              req_at_tgt
+            </text>
+          </g>
+
+          <!-- MOVING_UP to OPEN_DOOR -->
+          <g class="transition">
+            <path
+              d="M 300 520 L 530 620"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="350" y="580" font-size="11" fill="#2d3748">
+              timer_done &
+            </text>
+            <text x="330" y="595" font-size="11" fill="#2d3748">
+              at_target_or_req(up)
+            </text>
+          </g>
+
+          <!-- MOVING_DOWN to OPEN_DOOR -->
+          <g class="transition">
+            <path
+              d="M 900 520 L 670 620"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="780" y="580" font-size="11" fill="#2d3748">
+              timer_done &
+            </text>
+            <text x="755" y="595" font-size="11" fill="#2d3748">
+              at_target_or_req(dn)
+            </text>
+          </g>
+
+          <!-- OPEN_DOOR to MOVING_UP -->
+          <g class="transition">
+            <path
+              d="M 530 590 L 300 480"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="335" y="520" font-size="10" fill="#2d3748">
+              door_timer_done & req_above
+            </text>
+            <text x="320" y="505" font-size="10" fill="#2d3748">(dir='1')</text>
+            <!-- <text x="335" y="490" font-size="10" fill="#2d3748">
+              & dir='1')) & req_above
+            </text> -->
+          </g>
+
+          <!-- OPEN_DOOR to MOVING_DOWN -->
+          <g class="transition">
+            <path
+              d="M 670 590 L 900 480"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="755" y="520" font-size="10" fill="#2d3748">
+              door_timer_done & req_below
+            </text>
+            <text x="745" y="505" font-size="10" fill="#2d3748">
+              (!dir='0')
+            </text>
+            <!-- <text x="755" y="490" font-size="10" fill="#2d3748">
+              & dir='0')) & req_below
+            </text> -->
+          </g>
+
+          <!-- OPEN_DOOR to IDLE -->
+          <g class="transition">
+            <path
+              d="M 580 570 L 580 330"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="480" y="440" font-size="11" fill="#2d3748">
+              door_timer_done &
+            </text>
+            <text x="455" y="455" font-size="11" fill="#2d3748">
+              (no_req(up) OR no_req(dn))
+            </text>
+            <!-- <text x="475" y="470" font-size="11" fill="#2d3748">
+              OR !any_req)
+            </text> -->
+          </g>
+
+          <!-- MOVING_UP to IDLE -->
+          <g class="transition">
+            <path
+              d="M 310 380 L 530 270"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="380" y="310" font-size="11" fill="#2d3748">
+              req_at_curr & dir= '1' & any_req
+            </text>
+            <!-- <text x="380" y="295" font-size="11" fill="#2d3748">
+              & req_above
+            </text> -->
+          </g>
+
+          <!-- MOVING_DOWN to IDLE -->
+          <g class="transition">
+            <path
+              d="M 890 380 L 670 270"
+              stroke="#2d3748"
+              stroke-width="2"
+              fill="none"
+              marker-end="url(#arrowhead)"
+            />
+            <text x="750" y="310" font-size="11" fill="#2d3748">
+              req_at_curr & dir = '0' & any_req
+            </text>
+            <!-- <text x="750" y="295" font-size="11" fill="#2d3748">
+              & req_below
+            </text> -->
+          </g>
+        </svg>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: #60a5fa; border-color: #2563eb"
+          ></div>
+          <div class="legend-text">
+            <strong>IDLE:</strong> Elevator waiting, door closed
+          </div>
+        </div>
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: #34d399; border-color: #059669"
+          ></div>
+          <div class="legend-text">
+            <strong>MOVING_UP:</strong> Elevator ascending
+          </div>
+        </div>
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: #f59e0b; border-color: #d97706"
+          ></div>
+          <div class="legend-text">
+            <strong>MOVING_DOWN:</strong> Elevator descending
+          </div>
+        </div>
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: #ec4899; border-color: #be185d"
+          ></div>
+          <div class="legend-text">
+            <strong>OPEN_DOOR:</strong> Door open for passengers
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
